@@ -11,7 +11,7 @@ use Nwidart\Modules\FileRepository;
 use Nwidart\Modules\Support\Config\GenerateConfigReader;
 use Nwidart\Modules\Support\Stub;
 
-class ModuleGenerator extends Generator
+class GamotaComponentGenerator extends Generator
 {
     /**
      * The module name will created.
@@ -70,13 +70,6 @@ class ModuleGenerator extends Generator
     protected $type = 'web';
 
     /**
-     * set default module type.
-     *
-     * @var string
-     */
-    protected $support = 'default';
-
-    /**
      * Enables the module.
      *
      * @var bool
@@ -119,20 +112,6 @@ class ModuleGenerator extends Generator
     public function setType($type)
     {
         $this->type = $type;
-
-        return $this;
-    }
-
-    /**
-     * Set support.
-     *
-     * @param string $support
-     *
-     * @return $this
-     */
-    public function setSupport($support)
-    {
-        $this->support = $support;
 
         return $this;
     }
@@ -333,33 +312,14 @@ class ModuleGenerator extends Generator
     public function generate(): int
     {
         $name = $this->getName();
-
-        if ($this->module->has($name)) {
-            if ($this->force) {
-                $this->module->delete($name);
-            } else {
-                $this->console->error("Module [{$name}] already exist!");
-
-                return E_ERROR;
-            }
+        if (!$this->module->has($name)) {
+            $this->console->error("Module [{$name}] does not created!");
+            return E_ERROR;
         }
 
-        $this->generateFolders();
+        $this->generateFiles();
 
-        $this->generateModuleJsonFile();
-
-        if ($this->type !== 'plain') {
-            $this->generateFiles();
-            $this->generateResources();
-        }
-
-        if ($this->type === 'plain') {
-            $this->cleanModuleJsonFile();
-        }
-
-        $this->activator->setActiveByName($name, $this->isActive);
-
-        $this->console->info("Module [{$name}] created successfully.");
+        $this->generateMenuFiles();
 
         return 0;
     }
@@ -400,7 +360,7 @@ class ModuleGenerator extends Generator
      */
     public function generateFiles()
     {
-        $files = $this->getFiles();
+        $files = [];
         $gamota_files = $this->getGamotaFiles();
         if (!empty($this->components)) {
             foreach ($this->components as $key => $comp_name) {
@@ -411,19 +371,20 @@ class ModuleGenerator extends Generator
             }
         }
 
-        foreach ($files as $stub => $file) {
-            $path = $this->module->getModulePath($this->getName()) . $file;
+        if (!empty($files)) {
+            foreach ($files as $stub => $file) {
+                $path = $this->module->getModulePath($this->getName()) . $file;
 
-            if (!$this->filesystem->isDirectory($dir = dirname($path))) {
-                $this->filesystem->makeDirectory($dir, 0775, true);
+                if (!$this->filesystem->isDirectory($dir = dirname($path))) {
+                    $this->filesystem->makeDirectory($dir, 0775, true);
+                }
+
+                $this->filesystem->put($path, $this->getStubContents($stub));
+
+                $this->console->info("Created : {$path}");
             }
-
-            $this->filesystem->put($path, $this->getStubContents($stub));
-
-            $this->console->info("Created : {$path}");
         }
 
-        $this->generateMenuFiles();
     }
 
     /**
@@ -478,6 +439,24 @@ class ModuleGenerator extends Generator
 
     }
 
+    protected function getStubMenuItem($stub)
+    {
+        return (new Stub(
+            '/' . $stub . '.stub',
+            $this->getMenuItemReplacement()
+        )
+        )->render();
+    }
+
+    protected function getMenuItemReplacement()
+    {
+        $replaces = [];
+        $replaces['LOWER_NAME'] = $this->getLowerNameReplacement();
+        $replaces['STUDLY_NAME'] = $this->getStudlyNameReplacement();
+
+        return $replaces;
+    }
+
     /**
      * Generate some resources.
      */
@@ -504,7 +483,6 @@ class ModuleGenerator extends Generator
 
         if (GenerateConfigReader::read('controller')->generate() === true) {
             $options = $this->type == 'api' ? ['--api' => true] : [];
-            $options['--support'] = $this->support;
             $this->console->call('module:make-controller', [
                 'controller' => $this->getName() . 'Controller',
                 'module' => $this->getName(),
@@ -526,24 +504,6 @@ class ModuleGenerator extends Generator
             $this->getReplacement($stub)
         )
         )->render();
-    }
-
-    protected function getStubMenuItem($stub)
-    {
-        return (new Stub(
-            '/' . $stub . '.stub',
-            $this->getMenuItemReplacement()
-        )
-        )->render();
-    }
-
-    protected function getMenuItemReplacement()
-    {
-        $replaces = [];
-        $replaces['LOWER_NAME'] = $this->getLowerNameReplacement();
-        $replaces['STUDLY_NAME'] = $this->getStudlyNameReplacement();
-
-        return $replaces;
     }
 
     /**

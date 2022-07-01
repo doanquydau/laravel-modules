@@ -1,0 +1,89 @@
+@extends('layouts.landing')
+
+@section('content')
+<div class="item-container">
+    <div class="card card-custom mt-3">
+        <div class="card-body">
+            <form action="{{ route('$LOWER_NAME$.config.store') }}" method="post">
+                @method('post')
+                @csrf
+                <div class="rounded border p-10">
+                    <div class="mb-10">
+                        <label class="form-label">Start Date</label>
+                        <input type="text" class="form-control" id="start_date" name="start_date" value="{{ $config->start_date ?? '' }}" placeholder="Start Date"/>
+                    </div>
+                    <div class="mb-10">
+                        <label class="form-label">End Date</label>
+                        <input type="text" class="form-control" id="end_date" name="end_date" value="{{ $config->end_date ?? '' }}" placeholder="End Date"/>
+                    </div>
+                    <div class="mb-10">
+                        <label class="form-label">Rule</label>
+                        <textarea name="rule_text" cols="10" rows="10" id="rule_text" class="tox-target">{{ $config->rule_text ?? '' }}</textarea>
+                    </div>
+                    <div class="mb-10">
+                        <button class="btn btn-success" type="submit">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endsection
+
+@section('page_name', 'Config')
+@section('styles')
+<style>
+.paginate-contain svg {
+    width: 20px;
+}
+
+.item-container .float-left {
+    float: left
+}
+.item-container .btn-delete {
+    padding: 0 !important;
+    margin-left: 20px;
+}
+</style>
+@endsection
+
+@section('scripts')
+<script>
+    $(document).ready(function() {
+        $("#start_date, #end_date").flatpickr({
+            enableTime: true,
+            dateFormat: "Y-m-d H:i:S",
+        });
+
+        var useDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        tinymce.init({
+            selector: 'textarea#rule_text',
+            plugins: 'print preview powerpaste casechange importcss tinydrive searchreplace autolink autosave save directionality advcode visualblocks visualchars fullscreen image link media mediaembed template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists checklist wordcount tinymcespellchecker a11ychecker imagetools textpattern noneditable help formatpainter permanentpen pageembed charmap tinycomments mentions quickbars linkchecker emoticons advtable export',
+            mobile: {
+                plugins: 'print preview powerpaste casechange importcss tinydrive searchreplace autolink autosave save directionality advcode visualblocks visualchars fullscreen image link media mediaembed template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists checklist wordcount tinymcespellchecker a11ychecker textpattern noneditable help formatpainter pageembed charmap mentions quickbars linkchecker emoticons advtable'
+            },
+            menu: {
+                tc: {
+                title: 'Comments',
+                items: 'addcomment showcomments deleteallconversations'
+                }
+            },
+            menubar: 'file edit view insert format tools table tc help',
+            toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist checklist | forecolor backcolor casechange permanentpen formatpainter removeformat | pagebreak | charmap emoticons | fullscreen  print | insertfile image media pageembed link  | a11ycheck',
+            autosave_ask_before_unload: true,
+            autosave_interval: '30s',
+            autosave_prefix: '{path}{query}-{id}-',
+            autosave_restore_when_empty: false,
+            autosave_retention: '2m',
+            importcss_append: true,
+            height: 400,
+            image_caption: true,
+            quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote quickimage quicktable',
+            noneditable_noneditable_class: 'mceNonEditable',
+            toolbar_mode: 'wrap',
+            skin: useDarkMode ? 'oxide-dark' : 'oxide',
+            content_css: useDarkMode ? 'dark' : 'default',
+        });
+    });
+</script>
+@endsection

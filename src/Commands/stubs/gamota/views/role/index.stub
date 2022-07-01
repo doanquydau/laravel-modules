@@ -1,0 +1,148 @@
+@extends('layouts.landing') @section('page_name', 'Role List')
+@section('content')
+<div class="item-container">
+    <div class="table-responsive">
+        <div class="card card-custom">
+            <div class="card-header">
+                <div class="card-title">
+                    <span class="card-icon">
+                        <i class="flaticon2-chat-1 text-primary"></i>
+                    </span>
+                    <h3 class="card-label">Filter</h3>
+                </div>
+                <div class="card-toolbar">
+                    <a href="{{ route('$LOWER_NAME$.role.index') }}" class="btn btn-primary btn-sm me-3 btn-light-default font-weight-bold" form="filter_role"><i class="fas fa-undo-alt"></i> Reset</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <form action="{{ route('$LOWER_NAME$.role.index') }}" method="GET" id="filter_role">
+                    <div class="row">
+                        <div class="form-group col-3">
+                            <label for="server_id"
+                                >Server
+                                </label
+                            >
+                            <select
+                                class="form-control"
+                                id="server_id"
+                                name="server_id"
+                            >
+                                <option value="all" {{ request()->get('server_id') == 'all' ? 'selected' : '' }}>Tất cả</option>
+                                @if (!empty($servers))
+                                @foreach($servers as $server_id => $server_name)
+                                <option value="{{ $server_id }}" {{ request()->get('server_id') == $server_id ? 'selected' : '' }}>{{ $server_name }}</option>
+                                @endforeach
+                                @endif
+                            </select>
+                        </div>
+                        <div class="form-group col-3">
+                            <label for="username"
+                                >Tên đăng nhập
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="username"
+                                placeholder="Username"
+                                name="appota_username"
+                                value="{{ request()->get('appota_username') }}"
+                            />
+                        </div>
+                        <div class="form-group col-3">
+                            <label for="role_name"
+                                >Tên nhân vật
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="role_name"
+                                placeholder="role_name"
+                                name="role_name"
+                                value="{{ request()->get('role_name') }}"
+                            />
+                        </div>
+                        <div class="form-group col-3">
+                            <label for="role_id"
+                                >ID nhân vật
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="role_id"
+                                placeholder="role_id"
+                                name="role_id"
+                                value="{{ request()->get('role_id') }}"
+                            />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <button class="btn btn-success btn-light-primary font-weight-bold" type="submit" form="filter_role">Search</button>
+            </div>
+        </div>
+        <div class="card card-custom mt-3">
+            <div class="card-body">
+                <table
+                    class="table table-striped gy-7 gs-7 table-hover table-row-bordered"
+                >
+                    <thead>
+                        <tr
+                            class="fw-bold fs-6 text-gray-800 border-bottom-2 border-gray-200"
+                        >
+                            <th class="min-w-50px">ID</th>
+                            <th class="min-w-50px">User ID</th>
+                            <th class="min-w-100px">Username</th>
+                            <th class="min-w-50px">Role ID</th>
+                            <th class="min-w-50px">Role Name</th>
+                            <th class="min-w-50px">Server ID</th>
+                            <th class="min-w-50px">Server Name</th>
+                            <th class="min-w-50px">Spin Total</th>
+                            <th class="min-w-50px">Birthday Turn</th>
+                            <th class="min-w-100px">Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if(!empty($items)) @foreach($items as $key => $item)
+                        <tr>
+                            <td>{{ $item->id }}</td>
+                            <td>{{ $item->appota_userid }}</td>
+                            <td>{{ $item->appota_username }}</td>
+                            <td>{{ $item->role_id }}</td>
+                            <td>{{ $item->role_name }}</td>
+                            <td>{{ $item->server_id }}</td>
+                            <td>{{ $item->server_name }}</td>
+                            <td>{{ $item->spin_total }}</td>
+                            <td>{{ $item->birthday_turn }}</td>
+                            <td>{{ $item->created_at }}</td>
+                        </tr>
+                        @endforeach @endif
+                    </tbody>
+                </table>
+                <div class="paginate-contain">
+                    {{ $items->links() }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection @section('styles')
+<style>
+    .paginate-contain svg {
+        width: 20px;
+    }
+
+    .item-container .float-left {
+        float: left;
+    }
+    .item-container .btn-delete {
+        padding: 0 !important;
+        margin-left: 20px;
+    }
+</style>
+@endsection @section('scripts')
+<script>
+    $(document).ready(function() {
+    });
+</script>
+@endsection

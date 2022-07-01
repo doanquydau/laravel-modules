@@ -1,6 +1,6 @@
 {
-  "name": "nwidart/laravel-modules",
-  "description": "Laravel Module management",
+  "name": "chicky/laravel-modules",
+  "description": "Gamota Laravel Module management (For Landing)",
   "keywords": [
     "modules",
     "laravel",
@@ -15,6 +15,11 @@
       "email": "n.widart@gmail.com",
       "homepage": "https://nicolaswidart.com",
       "role": "Developer"
+    },
+    {
+        "name": "Dau Doan Quy",
+        "email": "daudq@appota.com",
+        "role": "Developer"
     }
   ],
   "require": {

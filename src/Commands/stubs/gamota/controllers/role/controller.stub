@@ -1,0 +1,105 @@
+<?php
+
+namespace $CLASS_NAMESPACE$;
+
+use Nwidart\Modules\Traits\GamotaHelperTrait;
+use Illuminate\Contracts\Support\Renderable;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Modules\$STUDLY_NAME$\Entities\Role;
+
+class RoleController extends Controller
+{
+    use GamotaHelperTrait;
+
+    /**
+     * Display a listing of the resource.
+     * @return Renderable
+     */
+    public function index(Request $request)
+    {
+        $request_inp = $request->only(['server_id', 'appota_username', 'role_name', 'role_id']);
+        $search_inp = array_filter($request_inp, function ($item) {
+            return !empty($item);
+        });
+        $query_search = Role::query();
+
+        if (!empty($search_inp)) {
+            foreach ($search_inp as $key => $inp) {
+                if ($key == 'server_id' && $inp == 'all') {
+                    continue;
+                }
+                if (in_array($key, ['appota_username', 'role_name'])) {
+                    $query_search = $query_search->where($key, 'LIKE', '%' . $inp . '%');
+                } else {
+                    $query_search = $query_search->where($key, $inp);
+                }
+            }
+        }
+
+        $items = $query_search->paginate(10);
+        $servers = $this->get_list_server_by_game();
+
+        return view('$LOWER_NAME$::role.index', ['items' => $items, 'servers' => $servers]);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     * @return Renderable
+     */
+    public function create()
+    {
+        return view('$LOWER_NAME$::role.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     * @param Request $request
+     * @return Renderable
+     */
+    public function store(Request $request)
+    {
+        //
+    }
+
+    /**
+     * Show the specified resource.
+     * @param int $id
+     * @return Renderable
+     */
+    public function show($id)
+    {
+        return view('$LOWER_NAME$::role.show');
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     * @param int $id
+     * @return Renderable
+     */
+    public function edit($id)
+    {
+        return view('$LOWER_NAME$::role.edit');
+    }
+
+    /**
+     * Update the specified resource in storage.
+     * @param Request $request
+     * @param int $id
+     * @return Renderable
+     */
+    public function update(Request $request, $id)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     * @param int $id
+     * @return Renderable
+     */
+    public function destroy($id)
+    {
+        //
+    }
+}

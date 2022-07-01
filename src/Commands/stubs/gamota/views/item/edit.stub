@@ -1,0 +1,32 @@
+@extends('layouts.landing')
+@section('page_name', 'Items')
+
+@section('content')
+<div class="edit-page-container">
+    <div class="col-1">
+        <a href="{{ route('$LOWER_NAME$.item.index') }}" class="btn"><i class="fas fa-angle-left"></i> Back</a>
+    </div>
+    <form action="{{ route('$LOWER_NAME$.item.update', ['id' => $item->id]) }}" method="post">
+        @method('put')
+        @csrf
+        <div class="rounded border p-10">
+            <div class="mb-10">
+                <label class="form-label">Title</label>
+                <input type="text" class="form-control" name="title" value="{{ $item->title }}" placeholder="title"/>
+            </div>
+            <div class="mb-10">
+                <label class="form-label">Percent Appear</label>
+                <input type="number" min="0" class="form-control" name="percent_appear" value="{{ $item->percent_appear }}" placeholder="Percent Appear"/>
+            </div>
+            <div class="mb-10">
+                <label class="form-label">Position</label>
+                <input type="number" min="0" class="form-control" name="position" value="{{ $item->position }}" placeholder="Position"/>
+            </div>
+            <div class="mb-10">
+                <button class="btn btn-success" type="submit">Update</button>
+            </div>
+        </div>
+
+    </form>
+</div>
+@endsection

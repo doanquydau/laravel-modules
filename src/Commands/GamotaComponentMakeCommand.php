@@ -4,25 +4,25 @@ namespace Nwidart\Modules\Commands;
 
 use Illuminate\Console\Command;
 use Nwidart\Modules\Contracts\ActivatorInterface;
-use Nwidart\Modules\Generators\ModuleGenerator;
+use Nwidart\Modules\Generators\GamotaComponentGenerator;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
-class ModuleMakeCommand extends Command
+class GamotaComponentMakeCommand extends Command
 {
     /**
      * The console command name.
      *
      * @var string
      */
-    protected $name = 'module:make';
+    protected $name = 'make:gamota-component';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Create a new module.';
+    protected $description = 'Create a new component.';
 
     /**
      * Execute the console command.
@@ -33,16 +33,12 @@ class ModuleMakeCommand extends Command
         $success = true;
 
         foreach ($names as $name) {
-            $code = with(new ModuleGenerator($name))
+            $code = with(new GamotaComponentGenerator($name))
                 ->setFilesystem($this->laravel['files'])
                 ->setModule($this->laravel['modules'])
                 ->setConfig($this->laravel['config'])
                 ->setActivator($this->laravel[ActivatorInterface::class])
                 ->setConsole($this)
-                ->setSupport($this->option('support'))
-                ->setForce($this->option('force'))
-                ->setType($this->getModuleType())
-                ->setActive(!$this->option('disabled'))
                 ->setComponent($this->option('components'))
                 ->generate();
 
@@ -69,35 +65,7 @@ class ModuleMakeCommand extends Command
     protected function getOptions()
     {
         return [
-            ['plain', 'p', InputOption::VALUE_NONE, 'Generate a plain module (without some resources).'],
-            ['api', null, InputOption::VALUE_NONE, 'Generate an api module.'],
-            ['web', null, InputOption::VALUE_NONE, 'Generate a web module.'],
-            ['disabled', 'd', InputOption::VALUE_NONE, 'Do not enable the module at creation.'],
-            ['force', null, InputOption::VALUE_NONE, 'Force the operation to run when the module already exists.'],
             ['components', 'c', InputOption::VALUE_OPTIONAL, 'Generate Gamota components.'],
-            ['support', null, InputOption::VALUE_OPTIONAL, 'Support Gamota API.'],
         ];
-    }
-
-    /**
-     * Get module type .
-     *
-     * @return string
-     */
-    private function getModuleType()
-    {
-        $isPlain = $this->option('plain');
-        $isApi = $this->option('api');
-
-        if ($isPlain && $isApi) {
-            return 'web';
-        }
-        if ($isPlain) {
-            return 'plain';
-        } elseif ($isApi) {
-            return 'api';
-        } else {
-            return 'web';
-        }
     }
 }

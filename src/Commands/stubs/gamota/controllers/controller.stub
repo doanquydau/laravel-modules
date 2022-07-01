@@ -1,0 +1,591 @@
+<?php
+
+namespace $CLASS_NAMESPACE$;
+
+use App\Models\User;
+use Illuminate\Contracts\Support\Renderable;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Modules\$STUDLY_NAME$\Entities\Config;
+use Modules\$STUDLY_NAME$\Entities\Item;
+use Modules\$STUDLY_NAME$\Entities\ItemLog;
+use Modules\$STUDLY_NAME$\Entities\Payment;
+use Modules\$STUDLY_NAME$\Entities\Role;
+use Modules\$STUDLY_NAME$\Entities\Share;
+use Nwidart\Modules\Traits\GamotaHelperTrait;
+
+class $CLASS$ extends Controller
+{
+    private $message = '';
+    use GamotaHelperTrait;
+    /**
+     * Display a listing of the resource.
+     * @return Renderable
+     */
+    public function getListServer()
+    {
+        $servers = $this->get_list_server_by_game();
+        return response()->json([
+            'success' => true,
+            'message' => '',
+            'data' => $servers,
+        ]);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     * @return Renderable
+     */
+    public function getListRole(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'server_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors(),
+            ]);
+        }
+
+        $user_id = 2618078;
+        $roles = $this->api_get_all_character_by_server($request->get('server_id'), $user_id);
+        return response()->json([
+            'success' => true,
+            'message' => '',
+            'data' => $roles,
+        ]);
+    }
+
+    /**
+     * Attend.
+     * @param Request $request
+     * @return Renderable
+     */
+    public function attend(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'role_id' => 'required',
+            'role_name' => 'required',
+            'server_id' => 'required',
+            'server_name' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors(),
+            ]);
+        }
+
+        if (!$request->has('role_id') || empty($request->get('role_id'))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn chưa chọn nhân vật',
+            ]);
+        }
+
+        if (!$request->has('server_id') || empty($request->get('server_id'))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn chưa chọn máy chủ',
+            ]);
+        }
+
+        if (!$this->_block_time()) {
+            return response()->json([
+                'success' => false,
+                'message' => $this->message,
+            ]);
+        }
+
+        $user = [
+            'appota_userid' => 2618078,
+            'appota_username' => 'XuanXuXu',
+        ];
+
+        $role_id = $request->get('role_id');
+        $role_name = $request->get('role_name');
+        $server_id = $request->get('server_id');
+        $server_name = $request->get('server_name');
+
+        $role_query = Role::where('appota_userid', $user['appota_userid'])->where('role_id', $role_id)->where('server_id', $server_id);
+
+        if ($role_query->count() > 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tài khoản đã báo danh',
+            ]);
+        }
+
+        $turn = $this->countSpinTurn($role_id, $user['appota_userid']);
+
+        $data = array(
+            'appota_userid' => $user['appota_userid'],
+            'appota_username' => $user['appota_username'],
+            'server_name' => $server_name,
+            'server_id' => $server_id,
+            'role_name' => $role_name,
+            'role_id' => $role_id,
+            'spin_total' => $turn,
+        );
+
+        $res = Role::create($data);
+
+        if ($res) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Báo danh thành công',
+                'data' => [],
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Báo danh thất bại',
+                'data' => [],
+            ]);
+        }
+    }
+
+    /**
+     * Attend.
+     * @param Request $request
+     * @return Renderable
+     */
+    public function getRoleInfo(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'role_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors(),
+            ]);
+        }
+
+        if (!$request->has('role_id') || empty($request->get('role_id'))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn chưa chọn nhân vật',
+            ]);
+        }
+
+        if (!$this->_block_time()) {
+            return response()->json([
+                'success' => false,
+                'message' => $this->message,
+            ]);
+        }
+
+        $user = [
+            'appota_userid' => 2618078,
+            'appota_username' => 'XuanXuXu',
+        ];
+
+        $role_id = $request->get('role_id');
+        $role = Role::where('appota_userid', $user['appota_userid'])->where('role_id', $role_id)->first();
+
+        $turn = $this->countSpinTurn($role_id, $user['appota_userid']);
+        $turn_received = ItemLog::where('appota_userid', $user['appota_userid'])->where('role_id', $role_id)->count();
+        $turn_available = (int) $turn - $turn_received;
+
+        return response()->json([
+            'success' => true,
+            'message' => '',
+            'data' => [
+                'spin_total' => $turn,
+                'spin_received' => $turn_received,
+                'spin_available' => $turn_available,
+                'detail' => [
+                    "role_id" => $role_id,
+                    "role_name" => $role->role_name,
+                    "server_name" => $role->server_name,
+                    "spin_total" => $role->spin_total,
+                ],
+            ],
+        ]);
+    }
+
+    public function spin(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'role_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors(),
+            ]);
+        }
+
+        if (!$request->has('role_id') || empty($request->get('role_id'))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn chưa chọn nhân vật',
+            ]);
+        }
+
+        if (!$request->has('server_id') || empty($request->get('server_id'))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn chưa chọn máy chủ',
+            ]);
+        }
+
+        if (!$this->_block_time()) {
+            return response()->json([
+                'success' => false,
+                'message' => $this->message,
+            ]);
+        }
+
+        $user = [
+            'appota_userid' => 2618078,
+            'appota_username' => 'XuanXuXu',
+        ];
+
+        $role_id = $request->get('role_id');
+        $server_id = $request->get('server_id');
+        $type = $request->get('type');
+
+        $role = Role::where('appota_userid', $user['appota_userid'])->where('role_id', $role_id)->first();
+
+        if (empty($role)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy thông tin nhân vật',
+            ]);
+        }
+
+        if ($type != 1 && $type != 3 && $type != 6) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Yêu cầu không hợp lệ',
+            ]);
+        }
+
+        $turn = $this->countSpinTurn($role_id, $user['appota_userid']);
+        $turn_received = ItemLog::where('appota_userid', $user['appota_userid'])->where('role_id', $role_id)->count();
+        $turn_available = (int) $turn - $turn_received;
+
+        if ((int) $turn_received >= (int) $turn) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không đủ lượt',
+            ]);
+        }
+
+        if ($turn_available < $type) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không đủ lượt để quay. Vui lòng nạp thêm',
+            ]);
+        }
+
+        $list_items = Item::orderBy('percent_appear', 'desc')->get();
+
+        $data_random = [];
+        if (!empty($list_items)) {
+            foreach ($list_items as $key => $it_val) {
+                for ($i = 0; $i < (int) $it_val['percent_appear']; $i++) {
+                    $data_random[] = (int) $it_val['id'];
+                }
+            }
+        }
+
+        $data_log = [];
+        $data_response = [];
+        if (!empty($data_random)) {
+            for ($i = 0; $i < $type; $i++) {
+                $result_index = mt_rand(0, count($data_random) - 1);
+
+                $item_gift = Item::find($data_random[$result_index]);
+                $data_log = array(
+                    'appota_userid' => $role['appota_userid'],
+                    'appota_username' => $role['appota_username'],
+                    'role_id' => $role['role_id'],
+                    'role_name' => $role['role_name'],
+                    'server_id' => $role['server_id'],
+                    'server_name' => $role['server_name'],
+                    'gift_type' => 'spin',
+                    'gift_title' => $item_gift['title'],
+                    'gift_id' => $item_gift['id'],
+                );
+
+                ItemLog::create($data_log);
+
+                $data_response[] = [
+                    'gift_title' => $item_gift['title'],
+                    'gift_id' => $item_gift['id'],
+                    'position' => $item_gift['position'],
+                ];
+            }
+        }
+
+        if (empty($data_response)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy quà',
+            ]);
+        }
+
+        $turn = $this->countSpinTurn($role_id, $user['appota_userid']);
+        $turn_received = ItemLog::where('appota_userid', $user['appota_userid'])->where('role_id', $role_id)->count();
+        $turn_available = (int) $turn - $turn_received;
+
+        return response()->json([
+            'success' => true,
+            'message' => '',
+            'data' => [
+                'spin_total' => $turn,
+                'spin_received' => $turn_received,
+                'spin_available' => $turn_available,
+                'detail' => $data_response,
+            ],
+        ]);
+    }
+
+    /**
+     * Lịch sử
+     *
+     * @param: role_id
+     * Token: TT-Access-Token
+     */
+    public function getHistory(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'role_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors(),
+            ]);
+        }
+
+        if (!$request->has('role_id') || empty($request->get('role_id'))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn chưa chọn nhân vật',
+            ]);
+        }
+
+        $user = [
+            'appota_userid' => 2618078,
+            'appota_username' => 'XuanXuXu',
+        ];
+
+        $role_id = $request->get('role_id');
+
+        $offset = (isset($offset) && $offset > 0) ? $offset : 0;
+
+        $response = [];
+        $histories_query = ItemLog::select(['gift_id', 'gift_type', 'gift_title', 'role_name', 'server_name', 'created_at'])->where('role_id', $role_id)->where('appota_userid', $user['appota_userid']);
+
+        if ($request->has('type') && !empty($request->get('type'))) {
+            $histories_query = $histories_query->where('gift_type', $request->get('type'));
+        }
+
+        $histories = $histories_query->orderBy('created_at', 'desc')->get();
+        $response = $histories;
+        if (!empty($histories)) {
+            foreach ($histories as $it_key => $it_his) {
+                $gift_data = Item::find($it_his->gift_id);
+                if (!empty($gift_data)) {
+                    $response[$it_key]['detail'] = [
+                        'title' => $gift_data->title,
+                        'image' => $gift_data->image,
+                    ];
+                } else {
+                    unset($response[$it_key]);
+                }
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => '',
+            'data' => $response,
+        ]);
+    }
+
+    /** BXH
+     */
+    public function getRank()
+    {
+        $histories = ItemLog::select(['role_name', 'server_name', 'appota_userid', 'appota_username', DB::raw('count(*) as count_rows')])->orderBy('count_rows', 'desc')->groupBy('appota_userid', 'role_name', 'server_name', 'appota_username')->limit(10)->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => '',
+            'data' => $histories,
+        ]);
+    }
+
+    /**
+     * Api share
+     * params: role_id
+     */
+    public function share(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'role_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors(),
+            ]);
+        }
+
+        if (!$request->has('role_id') || empty($request->get('role_id'))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn chưa chọn nhân vật',
+            ]);
+        }
+
+        if (!$this->_block_time()) {
+            return response()->json([
+                'success' => false,
+                'message' => $this->message,
+            ]);
+        }
+
+        $member_info = [
+            'appota_userid' => 2618078,
+            'appota_username' => 'XuanXuXu',
+        ];
+
+        $member = User::where('appota_userid', $member_info['appota_userid'])->first();
+
+        if (empty($member)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy thông tin thành viên',
+            ]);
+        }
+
+        $role_id = $request->get('role_id');
+
+        $role = Role::where('appota_userid', $member_info['appota_userid'])->where('role_id', $role_id)->first();
+
+        if (empty($role)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy thông tin nhân vật',
+            ]);
+        }
+
+        $log = Share::where('appota_userid', $member_info['appota_userid'])->where('role_id', $role_id)->first();
+
+        if ($log != null) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nhân vật đã gửi lời chúc',
+            ]);
+        }
+
+        //save log
+        $data_log = array(
+            'appota_userid' => $role->appota_userid,
+            'appota_username' => $role->appota_username,
+            'role_id' => $role->role_id,
+            'role_name' => $role->role_name,
+            'server_id' => $role->server_id,
+            'server_name' => $role->server_name,
+        );
+
+        $log_id = Share::create($data_log);
+
+        if ($log_id) {
+            $update_role = Role::find($role['id']);
+            $update_role->birthday_turn = 1;
+            $update_role->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Gửi lời chúc thành công',
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Không thể gửi lời chúc',
+        ]);
+    }
+
+    /** Tổng lời chúc
+     */
+    public function getTotalShare()
+    {
+        $total = Share::count();
+        return response()->json([
+            'success' => true,
+            'message' => '',
+            'data' => $total,
+        ]);
+    }
+
+    public function getRule()
+    {
+        $config = Config::first();
+        $rule_text = !empty($config) ? $config->rule_text : '';
+
+        return response()->json([
+            'success' => true,
+            'message' => '',
+            'data' => $rule_text,
+        ]);
+    }
+
+    public function countSpinTurn($role_id, $user_id)
+    {
+
+        $config = Config::first();
+        $start_time = $config->start_date;
+        $blocked_time = $config->end_date;
+
+        $total_amount = Payment::where('appota_userid', $user_id)
+            ->where('role_id', $role_id)
+            ->where('created_at', ">=", $start_time)
+            ->where('created_at', "<=", $blocked_time)
+            ->sum('amount');
+
+        $total_amount = $total_amount;
+        $money = 50000;
+        return floor((int) $total_amount / (int) $money);
+    }
+
+    private function _block_time()
+    {
+        $config = Config::first();
+        $start_time = isset($config->id) ? $config->start_date : '';
+        $blocked_time = isset($config->id) ? $config->end_date : '';
+
+        if (empty($start_time) || empty($blocked_time) || $start_time == '0000-00-00 00:00:00' || $blocked_time == '0000-00-00 00:00:00') {
+            $this->message = 'Sự kiện chưa được cài đặt.';
+            return false;
+        }
+
+        if (time() < strtotime($start_time)) {
+            $this->message = 'Sự kiện chưa bắt đầu.';
+            return false;
+        }
+
+        if (time() > strtotime($blocked_time)) {
+            $this->message = 'Sự kiện đã kết thúc.';
+            return false;
+        }
+
+        return true;
+    }
+}

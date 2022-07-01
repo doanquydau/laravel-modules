@@ -1,0 +1,133 @@
+<?php
+
+namespace $CLASS_NAMESPACE$;
+
+use Carbon\Carbon;
+use Illuminate\Contracts\Support\Renderable;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Modules\$STUDLY_NAME$\Entities\ItemLog;
+
+class ItemLogController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     * @return Renderable
+     */
+    public function index(Request $request)
+    {
+        $request_inp = $request->only(['type', 'appota_username', 'role_name', 'role_id']);
+        $search_inp = array_filter($request_inp, function ($item) {
+            return !empty($item);
+        });
+        $query_search = ItemLog::query();
+
+        if (!empty($search_inp)) {
+            foreach ($search_inp as $key => $inp) {
+                if ($key == 'type' && $inp == 'all') {
+                    continue;
+                }
+                $query_search = $query_search->where($key, $inp);
+            }
+        }
+
+        if ($request->has('start_date') && !empty($request->get('start_date'))) {
+            $query_search = $query_search->where('created_at', '>=', $request->get('start_date'));
+        }
+        if ($request->has('end_date') && !empty($request->get('end_date'))) {
+            $query_search = $query_search->where('created_at', '<=', $request->get('end_date'));
+        }
+
+        if ($request->has('export') && !empty($request->get('export'))) {
+            return $this->export($query_search->get());
+        }
+
+        $items = $query_search->paginate(10);
+
+        return view('$LOWER_NAME$::item_log.index', ['items' => $items]);
+    }
+
+    protected function export($data)
+    {
+        $headers = array(
+            "Content-type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=Gift_Logs_Export_" . Carbon::now()->format('Y-m-d_H:i:s') . ".csv",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0",
+        );
+
+        $columns = array('', 'ID', 'User ID', 'Username', 'Role ID', 'Role Name', 'Server ID', 'Server Name', 'Item Type', 'Item Title', 'Created At');
+
+        $callback = function () use ($data, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach ($data as $stt => $it_data) {
+                fputcsv($file, array((int) $stt + 1, $it_data->id, $it_data->appota_userid, $it_data->appota_username, $it_data->role_id, $it_data->role_name, $it_data->server_id, $it_data->server_name, $it_data->gift_type, $it_data->gift_title, $it_data->created_at));
+            }
+            fclose($file);
+        };
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     * @return Renderable
+     */
+    public function create()
+    {
+        return view('$LOWER_NAME$::item_log.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     * @param Request $request
+     * @return Renderable
+     */
+    public function store(Request $request)
+    {
+        //
+    }
+
+    /**
+     * Show the specified resource.
+     * @param int $id
+     * @return Renderable
+     */
+    public function show($id)
+    {
+        return view('$LOWER_NAME$::item_log.show');
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     * @param int $id
+     * @return Renderable
+     */
+    public function edit($id)
+    {
+        return view('$LOWER_NAME$::item_log.edit');
+    }
+
+    /**
+     * Update the specified resource in storage.
+     * @param Request $request
+     * @param int $id
+     * @return Renderable
+     */
+    public function update(Request $request, $id)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     * @param int $id
+     * @return Renderable
+     */
+    public function destroy($id)
+    {
+        //
+    }
+}

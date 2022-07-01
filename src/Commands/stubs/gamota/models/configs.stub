@@ -1,0 +1,19 @@
+<?php
+
+namespace $MODULE_NAMESPACE$\$STUDLY_NAME$\Entities;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+class Config extends Model
+{
+    use HasFactory;
+
+    protected $table = '$LOWER_NAME$_configs';
+    protected $fillable = [
+        'start_time',
+        'end_time',
+        'rule_text',
+    ];
+
+}

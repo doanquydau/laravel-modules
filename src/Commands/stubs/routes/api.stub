@@ -16,3 +16,18 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/$LOWER_NAME$', function (Request $request) {
     return $request->user();
 });
+
+Route::prefix('$LOWER_NAME$')->group(function () {
+    Route::controller($STUDLY_NAME$Controller::class)->group(function () {
+        Route::get('/list-server', 'getListServer');
+        Route::get('/list-role', 'getListRole');
+        Route::post('/attend', 'attend');
+        Route::get('/get-role-info', 'getRoleInfo');
+        Route::post('/spin', 'spin');
+        Route::get('/histories', 'getHistory');
+        Route::get('/ranks', 'getRank');
+        Route::post('/share', 'share');
+        Route::get('/total-share', 'getTotalShare');
+        Route::get('/rule', 'getRule');
+    });
+});

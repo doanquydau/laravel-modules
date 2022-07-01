@@ -1,0 +1,24 @@
+<?php
+
+namespace $MODULE_NAMESPACE$\$STUDLY_NAME$\Entities;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+class Role extends Model
+{
+    use HasFactory;
+
+    protected $table = '$LOWER_NAME$_roles';
+    protected $fillable = [
+        'appota_userid',
+        'appota_username',
+        'role_id',
+        'role_name',
+        'server_id',
+        'server_name',
+        'spin_total',
+        'birthday_turn'
+    ];
+
+}

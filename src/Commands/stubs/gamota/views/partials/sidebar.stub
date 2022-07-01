@@ -1,0 +1,26 @@
+<div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ strpos(request()->path(), '$LOWER_NAME$') !== false ? 'show' : '' }}">
+    <span class="menu-link">
+        <span class="menu-icon">
+            <i class="bi bi-archive fs-3"></i>
+        </span>
+        <span class="menu-title">$STUDLY_NAME$</span>
+        <span class="menu-arrow"></span>
+    </span>
+    <div class="menu-sub menu-sub-accordion menu-active-bg">
+        @if (file_exists(base_path('Modules/$STUDLY_NAME$/Resources/views/partials/sidebar/items/item.blade.php')))
+            @include('$LOWER_NAME$::partials.sidebar.items.item')
+        @endif
+        @if (file_exists(base_path('Modules/$STUDLY_NAME$/Resources/views/partials/sidebar/items/item_log.blade.php')))
+            @include('$LOWER_NAME$::partials.sidebar.items.item_log')
+        @endif
+        @if (file_exists(base_path('Modules/$STUDLY_NAME$/Resources/views/partials/sidebar/items/role.blade.php')))
+            @include('$LOWER_NAME$::partials.sidebar.items.role')
+        @endif
+        @if (file_exists(base_path('Modules/$STUDLY_NAME$/Resources/views/partials/sidebar/items/payment.blade.php')))
+            @include('$LOWER_NAME$::partials.sidebar.items.payment')
+        @endif
+        @if (file_exists(base_path('Modules/$STUDLY_NAME$/Resources/views/partials/sidebar/items/config.blade.php')))
+            @include('$LOWER_NAME$::partials.sidebar.items.config')
+        @endif
+    </div>
+</div>

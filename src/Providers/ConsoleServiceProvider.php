@@ -3,7 +3,6 @@
 namespace Nwidart\Modules\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
 use Nwidart\Modules\Commands;
 
 class ConsoleServiceProvider extends ServiceProvider
@@ -57,6 +56,7 @@ class ConsoleServiceProvider extends ServiceProvider
         Commands\LaravelModulesV6Migrator::class,
         Commands\ComponentClassMakeCommand::class,
         Commands\ComponentViewMakeCommand::class,
+        Commands\GamotaComponentMakeCommand::class,
     ];
 
     public function register(): void

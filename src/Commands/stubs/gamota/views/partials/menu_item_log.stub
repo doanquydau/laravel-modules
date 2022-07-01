@@ -1,0 +1,8 @@
+<div class="menu-item">
+    <a class="menu-link {{ strpos(request()->path(), '$LOWER_NAME$/item_log') !== false ? 'active' : '' }}" href="{{ route('$LOWER_NAME$.item_log.index') }}">
+        <span class="menu-bullet">
+            <span class="bullet bullet-dot"></span>
+        </span>
+        <span class="menu-title">Item Log</span>
+    </a>
+</div>

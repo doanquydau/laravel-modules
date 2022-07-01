@@ -1,0 +1,8 @@
+<div class="menu-item">
+    <a class="menu-link {{ strpos(request()->path(), '$LOWER_NAME$/config') !== false ? 'active' : '' }}" href="{{ route('$LOWER_NAME$.config.index') }}">
+        <span class="menu-bullet">
+            <span class="bullet bullet-dot"></span>
+        </span>
+        <span class="menu-title">Config</span>
+    </a>
+</div>

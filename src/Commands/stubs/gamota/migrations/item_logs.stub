@@ -1,0 +1,44 @@
+<?php
+
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('$LOWER_NAME$_gift_logs', function (Blueprint $table) {
+            $table->id();
+            $table->string('type')->default('item');
+            $table->integer('gift_id')->default(0);
+            $table->string('gift_title');
+            $table->string('gift_type')->default('spin');
+            $table->integer('appota_userid');
+            $table->string('appota_username');
+            $table->string('role_id');
+            $table->string('role_name');
+            $table->string('server_id');
+            $table->string('server_name');
+            $table->string('mail_id')->nullable();
+            $table->string('status')->default('new');
+            $table->timestamps();
+            $table->softDeletes();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('$LOWER_NAME$_gift_logs');
+    }
+};

@@ -1,0 +1,21 @@
+<?php
+
+namespace $MODULE_NAMESPACE$\$STUDLY_NAME$\Entities;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+class Item extends Model
+{
+    use HasFactory;
+
+    protected $table = '$LOWER_NAME$_items';
+    protected $fillable = [
+        'title',
+        'image',
+        'percent_appear',
+        'position',
+        'type'
+    ];
+
+}

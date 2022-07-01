@@ -1,4 +1,8 @@
 <?php
+use Modules\$STUDLY_NAME$\Http\Controllers\ItemController;
+use Modules\$STUDLY_NAME$\Http\Controllers\ItemLogController;
+use Modules\$STUDLY_NAME$\Http\Controllers\RoleController;
+use Modules\$STUDLY_NAME$\Http\Controllers\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -11,6 +15,42 @@
 |
 */
 
-Route::prefix('$LOWER_NAME$')->group(function() {
+Route::prefix('$LOWER_NAME$')->name('$LOWER_NAME$.')->group(function() {
     Route::get('/', '$STUDLY_NAME$Controller@index');
+
+    Route::controller(ItemController::class)->prefix('item')->name('item.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/store', 'store')->name('store');
+        Route::get('/{id}', 'edit')->name('edit');
+        Route::put('/edit/{id}', 'update')->name('update');
+        Route::delete('/{id}', 'destroy')->name('destroy');
+    });
+
+    Route::controller(ItemLogController::class)->prefix('item_log')->name('item_log.')->group(function () {
+        Route::match(['get', 'post'], '/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/store', 'store')->name('store');
+        Route::get('/{id}', 'edit')->name('edit');
+        Route::put('/edit/{id}', 'update')->name('update');
+        Route::delete('/{id}', 'destroy')->name('destroy');
+    });
+
+    Route::controller(RoleController::class)->prefix('role')->name('role.')->group(function () {
+        Route::match(['get', 'post'], '/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/store', 'store')->name('store');
+        Route::get('/{id}', 'edit')->name('edit');
+        Route::put('/edit/{id}', 'update')->name('update');
+        Route::delete('/{id}', 'destroy')->name('destroy');
+    });
+
+    Route::controller(PaymentController::class)->prefix('payment')->name('payment.')->group(function () {
+        Route::get('/', 'index')->name('index');
+    });
+
+    Route::controller(ConfigController::class)->prefix('config')->name('config.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+    });
 });

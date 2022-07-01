@@ -1,0 +1,8 @@
+<div class="menu-item">
+    <a class="menu-link {{ Str::contains(request()->path(), '$LOWER_NAME$/item') && !Str::contains(request()->path(), '_log')  ? 'active' : '' }}" href="{{ route('$LOWER_NAME$.item.index') }}">
+        <span class="menu-bullet">
+            <span class="bullet bullet-dot"></span>
+        </span>
+        <span class="menu-title">Item</span>
+    </a>
+</div>

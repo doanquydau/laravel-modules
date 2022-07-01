@@ -1,0 +1,123 @@
+<?php
+
+namespace $CLASS_NAMESPACE$;
+
+use Illuminate\Contracts\Support\Renderable;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Validator;
+use Modules\$STUDLY_NAME$\Entities\Item;
+
+class ItemController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     * @return Renderable
+     */
+    public function index()
+    {
+        $items = Item::paginate(20);
+        return view('$LOWER_NAME$::item.index', ['items' => $items]);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     * @return Renderable
+     */
+    public function create()
+    {
+        return view('$LOWER_NAME$::item.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     * @param Request $request
+     * @return Renderable
+     */
+    public function store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'title' => 'required',
+            'percent_appear' => 'required',
+            'position' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors(),
+            ]);
+        }
+
+        $item = new Item();
+        $item->title = $request->get('title');
+        $item->image = '';
+        $item->percent_appear = $request->get('percent_appear');
+        $item->position = $request->get('position');
+        $item->save();
+
+        return redirect()->route('$LOWER_NAME$.item.index')->with('success', 'Create success');
+    }
+
+    /**
+     * Show the specified resource.
+     * @param int $id
+     * @return Renderable
+     */
+    public function show($id)
+    {
+        return view('$LOWER_NAME$::item.show');
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     * @param int $id
+     * @return Renderable
+     */
+    public function edit($id)
+    {
+        $item = Item::find($id);
+        return view('$LOWER_NAME$::item.edit', ['item' => $item]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     * @param Request $request
+     * @param int $id
+     * @return Renderable
+     */
+    public function update(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'title' => 'required',
+            'percent_appear' => 'required',
+            'position' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors(),
+            ]);
+        }
+
+        $item = Item::find($id);
+        $item->title = $request->get('title');
+        $item->percent_appear = $request->get('percent_appear');
+        $item->position = $request->get('position');
+        $item->save();
+
+        return redirect()->route('$LOWER_NAME$.item.edit', ['id' => $id])->with('success', 'Update success');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     * @param int $id
+     * @return Renderable
+     */
+    public function destroy($id)
+    {
+        Item::where('id', $id)->delete();
+        return redirect()->route('$LOWER_NAME$.item.index')->with('success', 'Delete an item success');
+    }
+}
