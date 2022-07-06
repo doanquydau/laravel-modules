@@ -64,6 +64,8 @@ Basic documentation on [https://docs.laravelmodules.com/](https://docs.laravelmo
     PAY_AUTH_SECRET_KEY=
     GAME_API_KEY=
     APPOTA_API_KEY=
+    TELEGRAM_API_KEY=
+    SENDGIFT_VERIFY_TOKEN=
   ```
 - Install `Passport`
   ```
@@ -98,14 +100,14 @@ Parameter `--support="gamota"` to generate module controller support Gamota Land
 Insert this code `@include('trianvip::partials.sidebar.trianvip')` in file: `resources/views/partials/sidebar.blade.php`
 
 #### 3. Create Send Gift Console
-- 1. Run `php artisan module:make-sendgift-command <Module Name>`.
-- 2. Add below code to Module Service Provider
+- Run `php artisan module:make-sendgift-command <Module Name>`.
+- Add below code to Module Service Provider
     ```
     $this->commands([
         SendGiftCommand::class,
     ]);
     ```
-- 3. Run command `php artisan module_name:send-gift`. Example: `php artisan birthday:send-gift`
+- Run command `php artisan module_name:send-gift`. Example: `php artisan birthday:send-gift`
 > List Laravel command: `php artisan list`
 
 #### 4. Landing API docs
