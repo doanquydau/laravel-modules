@@ -59,7 +59,7 @@ trait GamotaLoginHelperTrait
 
         $user = User::where('appota_userid', $user_data['appota_userid'])->first();
 
-        if ($user == null) {
+        if (empty($user)) {
             User::create($user_data);
         }
 
