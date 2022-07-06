@@ -61,6 +61,7 @@ trait GamotaLoginHelperTrait
 
         if (empty($user)) {
             User::create($user_data);
+            $user = User::where('appota_userid', $user_data['appota_userid'])->first();
         }
 
         $tokenResult = $user->createToken(env('APP_KEY'));
