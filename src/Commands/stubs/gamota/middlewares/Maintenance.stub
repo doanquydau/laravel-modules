@@ -1,0 +1,61 @@
+<?php
+
+namespace Modules\$STUDLY_NAME$\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Modules\$STUDLY_NAME$\Entities\Config;
+
+class Maintenance
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     */
+    public function handle(Request $request, Closure $next)
+    {
+        $this->checkMaintenanceStatus($request);
+        return $next($request);
+    }
+
+    public function checkMaintenanceStatus()
+    {
+        $config = Config::first();
+        $start_time = isset($config->id) ? $config->start_date : '';
+        $blocked_time = isset($config->id) ? $config->end_date : '';
+        $maintenance = isset($config->id) && isset($config->maintenance) ? $config->maintenance : '';
+        $maintenance_start = isset($config->id) && isset($config->maintenance_start_date) ? ' từ ' . $config->maintenance_start_date : '';
+        $maintenance_end = isset($config->id) && isset($config->maintenance_end_date) ? ' đến ' . $config->maintenance_end_date : '';
+
+        if ($maintenance == 1 || $maintenance == true) {
+            abort(response()->json([
+                'success' => false,
+                'message' => "Server đang bảo trì" . $maintenance_start . $maintenance_end,
+            ], 400));
+        }
+
+        if (empty($start_time) || empty($blocked_time) || $start_time == '0000-00-00 00:00:00' || $blocked_time == '0000-00-00 00:00:00') {
+            abort(response()->json([
+                'success' => false,
+                'message' => "Sự kiện chưa được cài đặt.",
+            ], 400));
+        }
+
+        if (time() < strtotime($start_time)) {
+            abort(response()->json([
+                'success' => false,
+                'message' => "Sự kiện chưa bắt đầu.",
+            ], 400));
+        }
+
+        if (time() > strtotime($blocked_time)) {
+            abort(response()->json([
+                'success' => false,
+                'message' => "Sự kiện đã kết thúc.",
+            ], 400));
+        }
+    }
+}

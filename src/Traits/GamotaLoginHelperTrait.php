@@ -99,7 +99,7 @@ trait GamotaLoginHelperTrait
     private function login_appota($username, $password)
     {
         $client_id = request()->ip();
-        if (!in_array($client_id, ['127.0.0.1', '210.211.100.181', '118.70.28.215', '118.70.28.200', '113.190.242.72', '123.25.30.71', '115.78.95.5'])) {
+        if (!in_array($client_id, ['127.0.0.1', '210.211.100.181', '118.70.28.215', '118.70.28.200', '113.190.242.72', '123.25.30.71', '115.78.95.5', '172.23.0.1'])) {
             Log::debug('IP address is not allowed: ' . $client_id);
             return false;
         }

@@ -97,7 +97,18 @@ Parameter `--support="gamota"` to generate module controller support Gamota Land
 
 Insert this code `@include('trianvip::partials.sidebar.trianvip')` in file: `resources/views/partials/sidebar.blade.php`
 
-#### 3. Landing API docs
+#### 3. Create Send Gift Console
+- 1. Run `php artisan module:make-sendgift-command <Module Name>`.
+- 2. Add below code to Module Service Provider
+    ```
+    $this->commands([
+        SendGiftCommand::class,
+    ]);
+    ```
+- 3. Run command `php artisan module_name:send-gift`. Example: `php artisan birthday:send-gift`
+> List Laravel command: `php artisan list`
+
+#### 4. Landing API docs
 
 + Base URL: https://trutien.gamota.net
 + Dev Base URL: https://dev-trutien.gamota.net
@@ -427,3 +438,8 @@ Insert this code `@include('trianvip::partials.sidebar.trianvip')` in file: `res
         "data": 1
     }
     ```
+
+### For Developer
+- Run `docker-compose up`
+- Run `docker exec -it api-gamota-landing_php-fpm_1 bash` to access to server.
+- Run `chown -R 1000:1000 Modules/` to set permission for Module folder.

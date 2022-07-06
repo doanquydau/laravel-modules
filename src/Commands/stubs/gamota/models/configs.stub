@@ -11,9 +11,12 @@ class Config extends Model
 
     protected $table = '$LOWER_NAME$_configs';
     protected $fillable = [
-        'start_time',
-        'end_time',
+        'start_date',
+        'end_date',
         'rule_text',
+        'maintenance',
+        'maintenance_start_date',
+        'maintenance_end_date',
     ];
 
 }

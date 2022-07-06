@@ -57,6 +57,7 @@ class ConsoleServiceProvider extends ServiceProvider
         Commands\ComponentClassMakeCommand::class,
         Commands\ComponentViewMakeCommand::class,
         Commands\GamotaComponentMakeCommand::class,
+        Commands\SendGiftMakeCommand::class,
     ];
 
     public function register(): void

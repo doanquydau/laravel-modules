@@ -18,6 +18,9 @@ return new class extends Migration
             $table->timestamp('start_date')->nullable();
             $table->timestamp('end_date')->nullable();
             $table->text('rule_text')->nullable();
+            $table->boolean('maintenance')->default(0);
+            $table->timestamp('maintenance_start_date')->nullable();
+            $table->timestamp('maintenance_end_date')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

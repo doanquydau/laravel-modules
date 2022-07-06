@@ -9,6 +9,9 @@ class ItemLog extends Model
 {
     use HasFactory;
 
+    const ITEMLOG_NEW = 'new';
+    const ITEMLOG_SENT = 'sent';
+
     protected $table = '$LOWER_NAME$_gift_logs';
     protected $fillable = [
         'type',

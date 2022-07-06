@@ -53,7 +53,8 @@ class $CLASS$ extends Controller
             ]);
         }
 
-        $user_id = 2618078;
+        $user = Auth::guard('api')->user();
+        $user_id = $user->appota_userid;
         $roles = $this->api_get_all_character_by_server($request->get('server_id'), $user_id);
         return response()->json([
             'success' => true,
@@ -104,10 +105,7 @@ class $CLASS$ extends Controller
             ]);
         }
 
-        $user = [
-            'appota_userid' => 2618078,
-            'appota_username' => 'XuanXuXu',
-        ];
+        $user = Auth::guard('api')->user()->toArray();
 
         $role_id = $request->get('role_id');
         $role_name = $request->get('role_name');
@@ -184,10 +182,7 @@ class $CLASS$ extends Controller
             ]);
         }
 
-        $user = [
-            'appota_userid' => 2618078,
-            'appota_username' => 'XuanXuXu',
-        ];
+        $user = Auth::guard('api')->user()->toArray();
 
         $role_id = $request->get('role_id');
         $role = Role::where('appota_userid', $user['appota_userid'])->where('role_id', $role_id)->first();
@@ -247,10 +242,7 @@ class $CLASS$ extends Controller
             ]);
         }
 
-        $user = [
-            'appota_userid' => 2618078,
-            'appota_username' => 'XuanXuXu',
-        ];
+        $user = Auth::guard('api')->user()->toArray();
 
         $role_id = $request->get('role_id');
         $server_id = $request->get('server_id');
@@ -379,10 +371,7 @@ class $CLASS$ extends Controller
             ]);
         }
 
-        $user = [
-            'appota_userid' => 2618078,
-            'appota_username' => 'XuanXuXu',
-        ];
+        $user = Auth::guard('api')->user()->toArray();
 
         $role_id = $request->get('role_id');
 
@@ -462,10 +451,7 @@ class $CLASS$ extends Controller
             ]);
         }
 
-        $member_info = [
-            'appota_userid' => 2618078,
-            'appota_username' => 'XuanXuXu',
-        ];
+        $member_info = Auth::guard('api')->user()->toArray();
 
         $member = User::where('appota_userid', $member_info['appota_userid'])->first();
 
@@ -563,7 +549,7 @@ class $CLASS$ extends Controller
             ->sum('amount');
 
         $total_amount = $total_amount;
-        $money = 50000;
+        $money = env('MONEY_POINT', 50000);
         return floor((int) $total_amount / (int) $money);
     }
 

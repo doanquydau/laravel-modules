@@ -25,6 +25,29 @@ trait GamotaHelperTrait
         $this->game_api_key = env('GAME_API_KEY');
     }
 
+    public static function send_tele($title, $message)
+    {
+        $apiToken = env('TELEGRAM_API_KEY');
+        $data = [
+            'chat_id' => '@gameblogcronnotification',
+            'text' => $title . '\n' . $message,
+        ];
+
+        $full_url = "https://api.telegram.org/bot$apiToken/sendMessage";
+
+        $response = self::$client->request('GET', $full_url . http_build_query($data));
+        if ($response->getStatusCode() == 200) {
+            $body = $response->getBody();
+            $result = json_decode($body, true);
+
+            if (isset($result['error']) && $result['error'] == 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     // public function get_list_game($dev = false)
     // {
     //     if ($dev) {

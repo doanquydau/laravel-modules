@@ -35,9 +35,14 @@ class ConfigController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->only(['start_date', 'end_date', 'rule_text']);
+        $data = $request->only(['start_date', 'end_date', 'rule_text', 'maintenance', 'maintenance_start_date', 'maintenance_end_date']);
 
-        Config::first()->update($data);
+        $config = Config::first();
+        if (empty($config)) {
+            Config::create($data);
+        } else {
+            $config->update($data);
+        }
         return redirect()->route('$LOWER_NAME$.config.index')->with('success', 'Update Success');
     }
 

@@ -16,6 +16,22 @@
                         <label class="form-label">End Date</label>
                         <input type="text" class="form-control" id="end_date" name="end_date" value="{{ $config->end_date ?? '' }}" placeholder="End Date"/>
                     </div>
+                    <div class="ms-0 mb-10 row">
+                        <div class="form-check form-check-custom form-check-solid col-2">
+                            <input class="form-check-input mr-3" type="checkbox" name="maintenance" value="{{ $config->maintenance ?? 1 }}" id="flexCheckDefault" {{ $config->maintenance == 1 ? 'checked="checked"' : '' }}/>
+                            <label class="form-check-label" for="flexCheckDefault">
+                                Maintenance
+                            </label>
+                        </div>
+                        <div class="mb-10 col-4">
+                            <label class="form-label">Maintenance - Start Date</label>
+                            <input type="text" class="form-control" id="start_date" name="maintenance_start_date" value="{{ $config->maintenance_start_date ?? '' }}" placeholder="Start Date"/>
+                        </div>
+                        <div class="mb-10 col-4">
+                            <label class="form-label">Maintenance - End Date</label>
+                            <input type="text" class="form-control" id="end_date" name="maintenance_end_date" value="{{ $config->maintenance_end_date ?? '' }}" placeholder="End Date"/>
+                        </div>
+                    </div>
                     <div class="mb-10">
                         <label class="form-label">Rule</label>
                         <textarea name="rule_text" cols="10" rows="10" id="rule_text" class="tox-target">{{ $config->rule_text ?? '' }}</textarea>

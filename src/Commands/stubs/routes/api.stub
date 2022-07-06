@@ -17,7 +17,7 @@ Route::middleware('auth:api')->get('/$LOWER_NAME$', function (Request $request) 
     return $request->user();
 });
 
-Route::prefix('$LOWER_NAME$')->group(function () {
+Route::prefix('$LOWER_NAME$')->middleware('maintenance')->group(function () {
     Route::controller($STUDLY_NAME$Controller::class)->group(function () {
         Route::middleware('auth_header')->group(function () {
             Route::get('/list-role', 'getListRole');

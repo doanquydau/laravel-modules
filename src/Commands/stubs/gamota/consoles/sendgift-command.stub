@@ -1,0 +1,173 @@
+<?php
+
+namespace $NAMESPACE$;
+
+use GuzzleHttp\Client;
+use Illuminate\Console\Command;
+use Modules\$STUDLY_NAME$\Entities\Config;
+use Modules\$STUDLY_NAME$\Entities\ItemLog;
+use Nwidart\Modules\Traits\GamotaHelperTrait;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputArgument;
+
+class SendGiftCommand extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $name = '$LOWER_NAME$:send-gift';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Send Gift Command';
+
+    protected $message = '';
+    protected $client;
+
+    /**
+     * Create a new command instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->client = new Client();
+    }
+
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function handle()
+    {
+        $this->cron_push_log();
+    }
+
+    /**
+     * Get the console command arguments.
+     *
+     * @return array
+     */
+    protected function getArguments()
+    {
+        return [
+            ['module', InputArgument::OPTIONAL, 'The name of module will be used.']
+        ];
+    }
+
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [];
+    }
+
+    private function _block_time()
+    {
+        $config = Config::first();
+        $start_time = isset($config->id) ? $config->start_date : '';
+        $blocked_time = isset($config->id) ? $config->end_date : '';
+        $maintenance = isset($config->id) && isset($config->maintenance) ? $config->maintenance : false;
+
+        if ($maintenance == 1 || $maintenance == true) {
+            $this->message = 'Đang bảo trì';
+            return false;
+        }
+
+        if (empty($start_time) || empty($blocked_time) || $start_time == '0000-00-00 00:00:00' || $blocked_time == '0000-00-00 00:00:00') {
+            $this->message = 'Sự kiện chưa được cài đặt.';
+            return false;
+        }
+
+        if (time() < strtotime($start_time)) {
+            $this->message = 'Sự kiện chưa bắt đầu.';
+            return false;
+        }
+
+        if (time() > strtotime($blocked_time)) {
+            $this->message = 'Sự kiện đã kết thúc.';
+            return false;
+        }
+
+        return true;
+    }
+
+    public function cron_push_log()
+    {
+        if (!$this->_block_time()) {
+            $this->error($this->message);
+            return 0;
+        }
+        $this->info("[*]Start Push Log jackpot: " . date('d-m-Y H:i:s') . "\n");
+
+        $gifts = ItemLog::where('status', ItemLog::ITEMLOG_NEW)->limit(100)->orderBy('created_at', 'asc')->get();
+
+        if ($gifts && count($gifts) > 0) {
+            foreach ($gifts as $gift) {
+                $this->send_gift($gift);
+            }
+        }
+
+        $this->info("[*]End Push Log jackpot: " . date('d-m-Y H:i:s') . "\n");
+    }
+
+    private function send_gift($gift)
+    {
+        $message = '';
+
+        $url = 'http://giftcode.gtarcade.com/api/code/get-gift';
+        //get gifts
+        $params = [
+            'account' => '0060446_' . $gift['appota_userid'],
+            'app_id' => '',
+            'op_id' => '',
+            'game_id' => '',
+            'server_id' => $gift['server_id'],
+            'role_id' => $gift['role_id'],
+            'platform_gift_id' => $gift['package_id'],
+        ];
+        $verifyKey = env('SENDGIFT_VERIFY_TOKEN');
+
+        $params['sign'] = $this->genVerify($params, $verifyKey);
+
+        $response = $this->client->request('POST', $url, $params);
+        $body = $response->getBody();
+        $result = json_decode($body, true);
+        if ($response->getStatusCode() == 200) {
+            if ($result['code'] == 0) {
+                $gift_record = ItemLog::find($gift->id);
+                $gift_record->status = ItemLog::ITEMLOG_SENT;
+            } else {
+                $message = 'Cập nhật trạng thái gift id ' . $gift['id'] . ' thất bại';
+            }
+        } else {
+            $message .= '<p>Không thể kết nối đến máy chủ. Data: ' . json_encode($params, JSON_UNESCAPED_UNICODE) . '. Result: ' . json_encode($result, JSON_UNESCAPED_UNICODE) . '</p>';
+        }
+
+        sleep(10);
+        if ($message != '') {
+            GamotaHelperTrait::send_tele('Birthday-SendGift', $message);
+        }
+
+    }
+
+    private function genVerify($data, $verifyKey)
+    {
+        ksort($data);
+        $items = array();
+        foreach ($data as $key => $value) {
+            $items[] = $key . "=" . $value;
+        }
+        return md5(join("&", $items) . $verifyKey);
+    }
+}
