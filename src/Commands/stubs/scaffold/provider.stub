@@ -2,8 +2,10 @@
 
 namespace $NAMESPACE$;
 
+use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Factory;
+use Modules\$STUDLY_NAME$\Http\Middleware\AuthenticateHeaders;
 
 class $CLASS$ extends ServiceProvider
 {
@@ -22,12 +24,13 @@ class $CLASS$ extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(Router $router)
     {
         $this->registerTranslations();
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->moduleName, '$MIGRATIONS_PATH$'));
+        $router->aliasMiddleware('auth_header', AuthenticateHeaders::class);
     }
 
     /**

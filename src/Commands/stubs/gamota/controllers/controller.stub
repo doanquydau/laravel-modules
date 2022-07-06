@@ -15,11 +15,13 @@ use Modules\$STUDLY_NAME$\Entities\Payment;
 use Modules\$STUDLY_NAME$\Entities\Role;
 use Modules\$STUDLY_NAME$\Entities\Share;
 use Nwidart\Modules\Traits\GamotaHelperTrait;
+use Nwidart\Modules\Traits\GamotaLoginHelperTrait;
 
 class $CLASS$ extends Controller
 {
     private $message = '';
     use GamotaHelperTrait;
+    use GamotaLoginHelperTrait;
     /**
      * Display a listing of the resource.
      * @return Renderable

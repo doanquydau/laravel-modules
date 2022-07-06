@@ -1,0 +1,92 @@
+<?php
+
+namespace Modules\$STUDLY_NAME$\Http\Middleware;
+
+use App\Models\User;
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
+class AuthenticateHeaders
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     */
+    public function handle(Request $request, Closure $next)
+    {
+        $this->handleHeadersWithAccessToken($request);
+        return $next($request);
+    }
+
+    public function handleHeadersWithAccessToken($request)
+    {
+        $check_expire = $request->header('X-Token-Expires-Check');
+        $access_token = $request->header('Authorization');
+
+        if (empty($access_token)) {
+            abort(response()->json([
+                'success' => false,
+                'message' => "Unauthenticated",
+            ], 401));
+        }
+
+        $auth_header = explode(' ', $access_token);
+
+        $token = $auth_header[1];
+
+        // break up the token into its three parts
+        $token_parts = explode('.', $token);
+
+        $token_header = $token_parts[1];
+        // dd($token_header);
+
+        // base64 decode to get a json string
+        $token_header_json = base64_decode($token_header);
+
+        // then convert the json to an array
+        $token_header_array = json_decode($token_header_json, true);
+
+        $user_token = $token_header_array['jti'];
+
+        // find the user ID from the oauth access token table
+        // based on the token we just got
+        $oauth_access_tokens = DB::table('oauth_access_tokens')->where('id', $user_token)->first();
+
+        if (isset($oauth_access_tokens->user_id)) {
+            if (empty($check_expire)) {
+                $now_timestamp = Carbon::now()->timestamp;
+                $expire_token = Carbon::parse($oauth_access_tokens->expires_at)->timestamp;
+                if ($expire_token < $now_timestamp) {
+                    abort(response()->json([
+                        'success' => false,
+                        'message' => "Token has expired",
+                    ], 401));
+                }
+            }
+
+            // then retrieve the user from it's primary key
+            $user = User::where("id", $oauth_access_tokens->user_id)->first();
+
+            if (!isset($user->id)) {
+                abort(response()->json([
+                    'success' => false,
+                    'message' => "User not found",
+                ], 404));
+            }
+
+            Auth::guard('api')->setUser($user);
+        } else {
+            abort(response()->json([
+                'success' => false,
+                'message' => "Unauthenticated",
+            ], 401));
+        }
+
+    }
+}

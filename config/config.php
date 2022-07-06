@@ -44,6 +44,7 @@ return [
             'gamota/models/payment' => 'Entities/Payment.php',
             'gamota/models/configs' => 'Entities/Config.php',
             'gamota/models/share' => 'Entities/Share.php',
+            'gamota/middlewares/AuthenticateHeaders' => 'Http/Middleware/AuthenticateHeaders.php',
         ],
         'gamota' => [
             'item' => [
@@ -95,6 +96,9 @@ return [
                 'MODULE_NAMESPACE',
                 'PROVIDER_NAMESPACE',
             ],
+            /* ===== Middleware ===== */
+            'gamota/middlewares/AuthenticateHeaders' => ['LOWER_NAME', 'STUDLY_NAME'],
+            /* ===== Model ===== */
             'gamota/models/item' => ['MODULE_NAMESPACE', 'LOWER_NAME', 'STUDLY_NAME'],
             'gamota/models/item_log' => ['MODULE_NAMESPACE', 'LOWER_NAME', 'STUDLY_NAME'],
             'gamota/models/role' => ['MODULE_NAMESPACE', 'LOWER_NAME', 'STUDLY_NAME'],

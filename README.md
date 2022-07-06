@@ -54,6 +54,23 @@ Basic documentation on [https://docs.laravelmodules.com/](https://docs.laravelmo
 
 ## Gamota Components Document
 
+#### Requirements
+
+- Add variables in env file (support for Landing API): 
+  ```
+    PURCHASE_LIST_GAME_SECRET_KEY=
+    PURCHASE_SECRET_KEY=
+    PURCHASE_GET_ROLE_SECRET_KEY=
+    PAY_AUTH_SECRET_KEY=
+    GAME_API_KEY=
+    APPOTA_API_KEY=
+  ```
+- Install `Passport`
+  ```
+    php artisan migrate
+    php artisan passport:install
+  ```
+
 #### 1. Create Module
 
 - Have 2 ways to create a module:
@@ -65,7 +82,7 @@ Create module with default
 - Step 2: ``` php artisan make:gamota-component birthday --components="item,item_log" ```. 
 > Components: item, item_log, role, payment, config.
 
-##### Way 2:
+##### Way 2 (recommend):
 
 Create module with components
 - Step 1: ``` php artisan module:make <Module Name> --components="item,item_log,config,share,payment,role" --support="gamota" ```
@@ -115,7 +132,7 @@ Insert this code `@include('trianvip::partials.sidebar.trianvip')` in file: `res
 
 ### Login
 #### Login Normal
-1. URL: `api/auth/auth/api_login`
+1. URL: `api/<module_name>/login`
 2. Method: `POST`
 3. Params: 
  - `username`: String
@@ -136,7 +153,7 @@ Insert this code `@include('trianvip::partials.sidebar.trianvip')` in file: `res
     ```
 
 #### Login Google
-1. URL: `api/auth/auth/api_login`
+1. URL: `api/<module_name>/login`
 2. Method: `POST`
 3. Params: 
  - `google_token`: String
@@ -156,7 +173,7 @@ Insert this code `@include('trianvip::partials.sidebar.trianvip')` in file: `res
     ```
 
 #### Login Facebook
-1. URL: `api/auth/auth/api_login`
+1. URL: `api/<module_name>/login`
 2. Method: `POST`
 3. Params: 
  - `facebook_token`: String
