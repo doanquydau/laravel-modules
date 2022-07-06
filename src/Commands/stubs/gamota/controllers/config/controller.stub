@@ -37,6 +37,12 @@ class ConfigController extends Controller
     {
         $data = $request->only(['start_date', 'end_date', 'rule_text', 'maintenance', 'maintenance_start_date', 'maintenance_end_date']);
 
+        if ($request->has('maintenance')) {
+            $data['maintenance'] = 1;
+        } else {
+            $data['maintenance'] = 0;
+        }
+
         $config = Config::first();
         if (empty($config)) {
             Config::create($data);
