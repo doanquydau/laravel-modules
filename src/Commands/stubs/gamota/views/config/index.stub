@@ -18,7 +18,7 @@
                     </div>
                     <div class="ms-0 mb-10 row">
                         <div class="form-check form-check-custom form-check-solid col-2">
-                            <input class="form-check-input mr-3" type="checkbox" name="maintenance" value="{{ $config->maintenance ?? 1 }}" id="flexCheckDefault" {{ $config->maintenance == 1 ? 'checked="checked"' : '' }}/>
+                            <input class="form-check-input mr-3" type="checkbox" name="maintenance" value="{{ $config->maintenance ?? 1 }}" id="flexCheckDefault" {{ isset($config->maintenance) && $config->maintenance == 1 ? 'checked="checked"' : '' }}/>
                             <label class="form-check-label" for="flexCheckDefault">
                                 Maintenance
                             </label>
