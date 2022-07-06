@@ -90,6 +90,9 @@ Create module with components
 
 Parameter `--support="gamota"` to generate module controller support Gamota Landing APIs
 
+##### Run Migrate
+- Don't forget `php artisan module:migrate <Module Name>`
+
 #### 2. Add Module to Sidebar in CMS
 
 Insert this code `@include('trianvip::partials.sidebar.trianvip')` in file: `resources/views/partials/sidebar.blade.php`
